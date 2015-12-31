@@ -2,6 +2,7 @@ package com.alextheedom;
 
 import com.alextheedom.pool.JsonParserPool;
 import com.alextheedom.pool.PoolDepletionException;
+import org.boon.json.JsonParserAndMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -38,6 +39,20 @@ public class PoolCreationTest {
         // assert
         assertThatThrownBy(jsonParserPool::borrowObject).isInstanceOf(PoolDepletionException.class);
 
+    }
+
+    @Test
+    public void ShouldReturnObjectToPool() throws InterruptedException, PoolDepletionException {
+
+        // arrange
+        JsonParserPool jsonParserPool = new JsonParserPool(10);
+
+        // act
+        JsonParserAndMapper jsonParserAndMapper = jsonParserPool.borrowObject();
+        jsonParserPool.returnObject(jsonParserAndMapper);
+
+        // assert
+        assertThat(jsonParserPool.getPool().size()).isEqualTo(10);
     }
 
 

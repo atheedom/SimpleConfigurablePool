@@ -12,20 +12,18 @@ import java.util.AbstractQueue;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
+ * An abstract class to be implemented by an object pool
  */
-public abstract class AbstractObjectPool<T> implements ObjectPool{
+public abstract class AbstractObjectPool<T> implements ObjectPool {
 
     private AbstractQueue<T> pool;
     private ScheduledExecutorService executorService;
-
-    public AbstractObjectPool() {
-    }
-
 
     /**
      * Initialise the pool and populate it with poolSize number of objects
      *
      * @param poolSize the size of object to initialise the pool
+     * @param pool     the abstract queue pool
      */
     protected void initialize(int poolSize, AbstractQueue<T> pool) {
         setPool(pool);
@@ -56,24 +54,26 @@ public abstract class AbstractObjectPool<T> implements ObjectPool{
 
     /**
      * Gets the next free object from the pool.
-     *
+     * <p/>
      * Different strategies can be implemented to deal with a
      * situation where the pool doesn't contain any objects.
-     *
+     * <p/>
      * Some possible options:
-     *
+     * <p/>
      * 1. a new object will be created and given to the caller of this method.
      * 2. a PoolDepletionException is thrown
      * 3. wait for a specified time for an object to be returned
      *
      * @return T borrowed object
+     * @throws PoolDepletionException thrown if the pool has been depleted
+     * @throws InterruptedException
      */
     public abstract T borrowObject() throws PoolDepletionException, InterruptedException;
 
 
     /**
      * Returns object back to the pool.
-     *
+     * <p/>
      * Possible implementation may include code to clean/reset the
      * object to initial values.
      *
@@ -100,16 +100,13 @@ public abstract class AbstractObjectPool<T> implements ObjectPool{
      *
      * @param pool the pool to destroy
      */
-    protected void destroyObject(AbstractQueue<T> pool){
+    protected void destroyObject(AbstractQueue<T> pool) {
         T object = pool.poll();
         object = null;
     }
 
     /**
      * Shutdown this pool's executor service and deletes the queue pool.
-     *
-     * NOTE: This method should be overridden in the subclass as the executor reference
-     * will be null
      */
     public void shutdown() {
 
