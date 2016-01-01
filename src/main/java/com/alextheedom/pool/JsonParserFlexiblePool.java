@@ -9,20 +9,27 @@ import java.util.concurrent.TimeUnit;
 /**
  * Creates a pool of BOON JSON Parsers
  */
-public class JsonParserPool extends AbstractObjectPool<JsonParserAndMapper> {
+public class JsonParserFlexiblePool extends FlexibleObjectPool<JsonParserAndMapper> {
 
     private LinkedBlockingQueue<JsonParserAndMapper> pool = new LinkedBlockingQueue<>();
     private int pollTimeout = 3000;
 
-    public JsonParserPool() {
+
+    public JsonParserFlexiblePool() {
         initialize(20, pool);
     }
 
-    public JsonParserPool(int poolSize) {
+    public JsonParserFlexiblePool(int poolSize) {
         initialize(poolSize, pool);
     }
 
-    public JsonParserPool(int poolSize, int pollTimeout) {
+    public JsonParserFlexiblePool(int poolSize, int pollTimeout) {
+        initialize(poolSize, pool);
+        this.pollTimeout = pollTimeout;
+    }
+
+    public JsonParserFlexiblePool(int poolSize, int pollTimeout, FlexiblePoolConfig flexiblePoolConfig) {
+        super(flexiblePoolConfig);
         initialize(poolSize, pool);
         this.pollTimeout = pollTimeout;
     }

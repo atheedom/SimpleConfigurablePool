@@ -9,7 +9,6 @@ package com.alextheedom.pool;
 
 
 import java.util.AbstractQueue;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * An abstract class to be implemented by an object pool
@@ -17,7 +16,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public abstract class AbstractObjectPool<T> implements ObjectPool {
 
     private AbstractQueue<T> pool;
-    private ScheduledExecutorService executorService;
 
     /**
      * Initialise the pool and populate it with poolSize number of objects
@@ -105,25 +103,12 @@ public abstract class AbstractObjectPool<T> implements ObjectPool {
         object = null;
     }
 
-    /**
-     * Shutdown this pool's executor service and deletes the queue pool.
-     */
-    public void shutdown() {
-
-        // Destroys the entire pool.
-        destroyPool();
-
-        if (executorService != null) {
-            executorService.shutdown();
-            executorService = null;
-        }
-    }
 
     /**
      * Destroys the entire pool.
      */
     public void destroyPool() {
-        while (!pool.isEmpty()) {
+        while (pool != null && !pool.isEmpty()) {
             destroyObject(pool);
         }
         pool = null;
