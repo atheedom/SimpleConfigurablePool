@@ -28,6 +28,11 @@ public class JsonParserFlexiblePool extends FlexibleObjectPool<JsonParserAndMapp
         this.pollTimeout = pollTimeout;
     }
 
+    public JsonParserFlexiblePool(int poolSize, int minIdle, int maxIdle, int validationInterval) {
+        super( minIdle,  maxIdle,  validationInterval);
+        initialize(poolSize, pool);
+    }
+
     public JsonParserFlexiblePool(int poolSize, int pollTimeout, FlexiblePoolConfig flexiblePoolConfig) {
         super(flexiblePoolConfig);
         initialize(poolSize, pool);

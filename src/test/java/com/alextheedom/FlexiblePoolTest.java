@@ -19,12 +19,12 @@ public class FlexiblePoolTest {
     private JsonParserFlexiblePool jsonParserFlexiblePool;
 
     @After
-    public void teardown(){
+    public void teardown() {
         jsonParserFlexiblePool.destroyPool();
     }
 
     @Test
-    public void ShouldInitialiseWith15Objects(){
+    public void ShouldInitialiseWith15Objects() {
 
         // arrange and act
         jsonParserFlexiblePool = new JsonParserFlexiblePool(15);
@@ -50,7 +50,7 @@ public class FlexiblePoolTest {
 
 
     @Test
-    public void ShouldDestroyPool(){
+    public void ShouldDestroyPool() {
 
         // arrange
         jsonParserFlexiblePool = new JsonParserFlexiblePool(15);
@@ -82,6 +82,24 @@ public class FlexiblePoolTest {
 
     }
 
+    @Test
+    public void ShouldCreateWithConfigsPool() throws InterruptedException, PoolDepletionException {
 
+        // arrange
+        jsonParserFlexiblePool = new JsonParserFlexiblePool(10, 10, 15, 2000);
+
+        // act
+        jsonParserFlexiblePool.borrowObject();
+        jsonParserFlexiblePool.borrowObject();
+        jsonParserFlexiblePool.borrowObject();
+        jsonParserFlexiblePool.borrowObject();
+        jsonParserFlexiblePool.borrowObject();
+
+        Thread.sleep(4000);
+
+        // assert
+        assertThat(jsonParserFlexiblePool.getPool().size()).isEqualTo(10);
+
+    }
 
 }
