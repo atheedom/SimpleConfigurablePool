@@ -18,10 +18,7 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
     protected FlexibleObjectPool(int minIdle, int maxIdle, int validationInterval) {
         provokePoolMonitor(minIdle, maxIdle, validationInterval);
     }
-
-    protected FlexibleObjectPool(FlexiblePoolConfig config) {
-        provokePoolMonitor(config.minIdle, config.maxIdle, config.validationInterval);
-    }
+    
 
     /**
      * Checks pool conditions in a separate thread.
@@ -73,18 +70,4 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
         super.destroyPool();
     }
 
-
-    public class FlexiblePoolConfig {
-
-        protected final int minIdle;
-        protected final int maxIdle;
-        protected final int validationInterval;
-
-        public FlexiblePoolConfig(final int minIdle, final int maxIdle, final int validationInterval) {
-            this.minIdle = minIdle;
-            this.maxIdle = maxIdle;
-            this.validationInterval = validationInterval;
-        }
-
-    }
 }

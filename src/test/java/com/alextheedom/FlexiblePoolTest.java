@@ -24,7 +24,7 @@ public class FlexiblePoolTest {
     }
 
     @Test
-    public void ShouldInitialiseWith20Objects(){
+    public void ShouldInitialiseWith15Objects(){
 
         // arrange and act
         jsonParserFlexiblePool = new JsonParserFlexiblePool(15);
@@ -32,6 +32,7 @@ public class FlexiblePoolTest {
         // assert
         assertThat(jsonParserFlexiblePool.getPool().size()).isEqualTo(15);
     }
+
 
     @Test
     public void ShouldReturnObjectToPool() throws InterruptedException, PoolDepletionException {
@@ -80,9 +81,6 @@ public class FlexiblePoolTest {
         assertThat(jsonParserFlexiblePool.getPool().size()).isEqualTo(10);
 
     }
-
-
-
 
 
 
