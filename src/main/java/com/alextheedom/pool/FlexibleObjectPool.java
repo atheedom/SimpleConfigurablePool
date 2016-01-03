@@ -11,15 +11,18 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
 
     private ScheduledExecutorService executorService;
 
-    protected FlexibleObjectPool() {
-        provokePoolMonitor(10, 20, 3000);
+    protected FlexibleObjectPool(int poolSize) {
+        super(poolSize);
+        provokePoolMonitor(poolSize, 20, 3000);
     }
 
     protected FlexibleObjectPool(int minIdle, int maxIdle, int validationInterval) {
+        super(minIdle);
         provokePoolMonitor(minIdle, maxIdle, validationInterval);
     }
 
     protected FlexibleObjectPool(FlexiblePoolConfig config) {
+        super(config.minIdle);
         provokePoolMonitor(config.minIdle, config.maxIdle, config.validationInterval);
     }
 
@@ -41,16 +44,20 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
     protected void provokePoolMonitor(final int minIdle, final int maxIdle, int validationInterval) {
         executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleWithFixedDelay(() -> {
-            int size = getPool().size();
+            int size = getCurrentPoolSize();
             if (size < minIdle) {
                 int sizeToBeAdded = minIdle - size;
                 for (int i = 0; i < sizeToBeAdded; i++) {
-                    getPool().add(createObject());
+                    try {
+                        add();
+                    } catch (Exception e) {
+                        break;
+                    }
                 }
             } else if (size > maxIdle) {
                 int sizeToBeRemoved = size - maxIdle;
                 for (int i = 0; i < sizeToBeRemoved; i++) {
-                    destroyObject(getPool());
+                    destroy();
                 }
             }
 

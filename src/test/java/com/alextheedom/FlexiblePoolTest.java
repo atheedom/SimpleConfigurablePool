@@ -1,7 +1,6 @@
 package com.alextheedom;
 
 import com.alextheedom.pool.JsonParserFlexiblePool;
-import com.alextheedom.pool.PoolDepletionException;
 import org.boon.json.JsonParserAndMapper;
 import org.junit.After;
 import org.junit.Test;
@@ -30,22 +29,22 @@ public class FlexiblePoolTest {
         jsonParserFlexiblePool = new JsonParserFlexiblePool(15);
 
         // assert
-        assertThat(jsonParserFlexiblePool.getPool().size()).isEqualTo(15);
+        assertThat(jsonParserFlexiblePool.getCurrentPoolSize()).isEqualTo(15);
     }
 
 
     @Test
-    public void ShouldReturnObjectToPool() throws InterruptedException, PoolDepletionException {
+    public void ShouldReturnObjectToPool() throws Exception {
 
         // arrange
         jsonParserFlexiblePool = new JsonParserFlexiblePool(15);
 
         // act
-        JsonParserAndMapper jsonParserAndMapper = jsonParserFlexiblePool.borrowObject();
+        JsonParserAndMapper jsonParserAndMapper = jsonParserFlexiblePool.borrow();
         jsonParserFlexiblePool.returnObject(jsonParserAndMapper);
 
         // assert
-        assertThat(jsonParserFlexiblePool.getPool().size()).isEqualTo(15);
+        assertThat(jsonParserFlexiblePool.getCurrentPoolSize()).isEqualTo(15);
     }
 
 
@@ -59,46 +58,46 @@ public class FlexiblePoolTest {
         jsonParserFlexiblePool.destroyPool();
 
         // assert
-        assertThat(jsonParserFlexiblePool.getPool()).isNullOrEmpty();
+        assertThat(jsonParserFlexiblePool.isPoolNull()).isTrue();
     }
 
     @Test
-    public void ShouldReplenishPool() throws InterruptedException, PoolDepletionException {
+    public void ShouldReplenishPool() throws Exception {
 
         // arrange
         jsonParserFlexiblePool = new JsonParserFlexiblePool(10);
 
         // act
-        jsonParserFlexiblePool.borrowObject();
-        jsonParserFlexiblePool.borrowObject();
-        jsonParserFlexiblePool.borrowObject();
-        jsonParserFlexiblePool.borrowObject();
-        jsonParserFlexiblePool.borrowObject();
+        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.borrow();
 
         Thread.sleep(4000);
 
         // assert
-        assertThat(jsonParserFlexiblePool.getPool().size()).isEqualTo(10);
+        assertThat(jsonParserFlexiblePool.getCurrentPoolSize()).isEqualTo(10);
 
     }
 
     @Test
-    public void ShouldCreateWithConfigsPool() throws InterruptedException, PoolDepletionException {
+    public void ShouldCreateWithConfigsPool() throws Exception {
 
         // arrange
         jsonParserFlexiblePool = new JsonParserFlexiblePool(10, 10, 15, 2000);
 
         // act
-        jsonParserFlexiblePool.borrowObject();
-        jsonParserFlexiblePool.borrowObject();
-        jsonParserFlexiblePool.borrowObject();
-        jsonParserFlexiblePool.borrowObject();
-        jsonParserFlexiblePool.borrowObject();
+        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.borrow();
 
         Thread.sleep(4000);
 
         // assert
-        assertThat(jsonParserFlexiblePool.getPool().size()).isEqualTo(10);
+        assertThat(jsonParserFlexiblePool.getCurrentPoolSize()).isEqualTo(10);
 
     }
 

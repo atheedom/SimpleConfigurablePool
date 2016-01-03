@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -28,38 +30,38 @@ public class FixedPoolTest {
     public void ShouldInitialiseWith20Objects(){
 
         // arrange and act
-        jsonParserFixedPool = new JsonParserFixedPool(20);
+        jsonParserFixedPool = new JsonParserFixedPool(20, 3000, new LinkedBlockingQueue<JsonParserAndMapper>());
 
         // assert
-        assertThat(jsonParserFixedPool.getPool().size()).isEqualTo(20);
+        assertThat(jsonParserFixedPool.getCurrentPoolSize()).isEqualTo(20);
     }
 
 
     @Test
-    public void ShouldThrowDepletionException() throws PoolDepletionException, InterruptedException {
+    public void ShouldThrowDepletionException() throws Exception {
 
         // arrange
         jsonParserFixedPool = new JsonParserFixedPool(1);
 
         // act
-        jsonParserFixedPool.borrowObject();
+        jsonParserFixedPool.borrow();
 
         // assert
-        assertThatThrownBy(jsonParserFixedPool::borrowObject).isInstanceOf(PoolDepletionException.class);
+        assertThatThrownBy(jsonParserFixedPool::borrow).isInstanceOf(PoolDepletionException.class);
     }
 
     @Test
-    public void ShouldReturnObjectToPool() throws InterruptedException, PoolDepletionException {
+    public void ShouldReturnObjectToPool() throws Exception {
 
         // arrange
         jsonParserFixedPool = new JsonParserFixedPool(10);
 
         // act
-        JsonParserAndMapper jsonParserAndMapper = jsonParserFixedPool.borrowObject();
+        JsonParserAndMapper jsonParserAndMapper = jsonParserFixedPool.borrow();
         jsonParserFixedPool.returnObject(jsonParserAndMapper);
 
         // assert
-        assertThat(jsonParserFixedPool.getPool().size()).isEqualTo(10);
+        assertThat(jsonParserFixedPool.getCurrentPoolSize()).isEqualTo(10);
     }
 
 
@@ -73,7 +75,7 @@ public class FixedPoolTest {
         jsonParserFixedPool.destroyPool();
 
         // assert
-        assertThat(jsonParserFixedPool.getPool()).isNullOrEmpty();
+        assertThat(jsonParserFixedPool.isPoolNull()).isTrue();
     }
 
 

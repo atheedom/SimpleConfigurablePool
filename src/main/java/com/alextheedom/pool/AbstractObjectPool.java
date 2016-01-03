@@ -8,45 +8,86 @@
 package com.alextheedom.pool;
 
 
-import java.util.AbstractQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An abstract class to be implemented by an object pool
  */
-public abstract class AbstractObjectPool<T> implements ObjectPool {
+public abstract class AbstractObjectPool<T> implements Pool<T>{
 
-    private AbstractQueue<T> pool;
+    public enum PoolState {
+        STARTING, STARTED, STOPPING, STOPPED
+    }
+
+    private PoolState currentStatus;
+
+    private BlockingQueue<T> pool = new LinkedBlockingQueue<>();
+    private int pollTimeout;
+    private int poolSize;
+
+
+    public AbstractObjectPool(int poolSize) {
+        this.poolSize = poolSize;
+        initialize();
+    }
+
+    public AbstractObjectPool(int poolSize, int pollTimeout, BlockingQueue<T> pool) {
+        this.pollTimeout = pollTimeout;
+        this.poolSize = poolSize;
+        this.pool = pool;
+        initialize();
+    }
+
 
     /**
      * Initialise the pool and populate it with poolSize number of objects
-     *
-     * @param poolSize the size of object to initialise the pool
-     * @param pool     the abstract queue pool
      */
-    protected void initialize(int poolSize, AbstractQueue<T> pool) {
-        setPool(pool);
-        for (int i = 0; i < poolSize; i++) {
+    private void initialize() {
+        updatePoolStatus(PoolState.STARTING);
+        while (pool.size() < poolSize) {
             pool.add(createObject());
         }
+        updatePoolStatus(PoolState.STARTED);
     }
 
     /**
-     * Gets the pool
+     * Sets the pools current status
      *
-     * @return AbstractQueue pool object
+     * @param currentStatus the pool's current status
      */
-    public AbstractQueue<T> getPool() {
-        return pool;
+    private void updatePoolStatus(PoolState currentStatus) {
+        this.currentStatus = currentStatus;
     }
 
 
     /**
-     * Sets the pool.
+     * Returns the current pool size
      *
-     * @param pool the pool to set
+     * @return number of objects in the pool
      */
-    private void setPool(AbstractQueue<T> pool) {
-        this.pool = pool;
+    public int getCurrentPoolSize() {
+        return pool.size();
+    }
+
+    /**
+     * Is the pool null
+     *
+     * @return true if null otherwise false
+     */
+    public boolean isPoolNull() {
+        return pool == null;
+    }
+
+
+    /**
+     * Returns the status of the current pool.
+     *
+     * @return the current pool status
+     */
+    public PoolState poolState() {
+        return this.currentStatus;
     }
 
 
@@ -66,7 +107,24 @@ public abstract class AbstractObjectPool<T> implements ObjectPool {
      * @throws PoolDepletionException thrown if the pool has been depleted
      * @throws InterruptedException
      */
-    public abstract T borrowObject() throws PoolDepletionException, InterruptedException;
+    public T borrow() throws Exception {
+        checkPoolStatus();
+        T t = pool.poll(pollTimeout, TimeUnit.MILLISECONDS);
+
+        if (t == null) {
+            throw new PoolDepletionException("The pool is empty and was not replenished within timeout limits.");
+        }
+
+        return t;
+    }
+
+    /**
+     * Checks that the pool is running and ready for use otherwise it throws an exception
+     * @throws Exception thrown if pool not ready or shutting down
+     */
+    private void checkPoolStatus() throws Exception {
+        if (poolState() != PoolState.STARTED) throw new Exception("Pool not ready or stopped");
+    }
 
 
     /**
@@ -77,7 +135,8 @@ public abstract class AbstractObjectPool<T> implements ObjectPool {
      *
      * @param object object to be returned
      */
-    public void returnObject(T object) {
+    public void returnObject(T object) throws Exception {
+        checkPoolStatus();
         if (object == null) {
             return;
         }
@@ -95,12 +154,21 @@ public abstract class AbstractObjectPool<T> implements ObjectPool {
 
     /**
      * Destroys an object.
-     *
-     * @param pool the pool to destroy
      */
-    protected void destroyObject(AbstractQueue<T> pool) {
+    public void destroy() {
         T object = pool.poll();
         object = null;
+    }
+
+
+    /**
+     * Adds object to the pool.
+     *
+     * @return true if added successfully otherwise false
+     */
+    public boolean add() throws Exception {
+        checkPoolStatus();
+        return pool.add(createObject());
     }
 
 
@@ -108,10 +176,12 @@ public abstract class AbstractObjectPool<T> implements ObjectPool {
      * Destroys the entire pool.
      */
     public void destroyPool() {
+        updatePoolStatus(PoolState.STOPPING);
         while (pool != null && !pool.isEmpty()) {
-            destroyObject(pool);
+            destroy();
         }
         pool = null;
+        updatePoolStatus(PoolState.STOPPED);
     }
 
 }
