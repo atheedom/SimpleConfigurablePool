@@ -42,6 +42,9 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
      *                           When the number of objects is greater than maxIdle, excess instances will be removed.
      */
     protected void provokePoolMonitor(final int minIdle, final int maxIdle, int validationInterval) {
+        if (minIdle < 1 || minIdle >= maxIdle) {
+            throw new IllegalArgumentException("minIdle must be at least 1, and at least equal to maxIdle");
+        }
         executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleWithFixedDelay(() -> {
             int size = getCurrentPoolSize();

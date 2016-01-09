@@ -48,6 +48,9 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      */
     private void initialize() {
         updatePoolStatus(PoolState.STARTING);
+        if (poolSize < 1) {
+            throw new IllegalArgumentException("Pool Size must be at least 1");
+        }
         while (pool.size() < poolSize) {
             pool.add(createObject());
         }
