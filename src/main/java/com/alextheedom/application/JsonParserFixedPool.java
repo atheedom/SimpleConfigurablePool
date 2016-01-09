@@ -4,15 +4,13 @@ import com.alextheedom.pool.AbstractObjectPool;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 /**
  * Creates a pool of BOON JSON Parsers
  */
 public class JsonParserFixedPool extends AbstractObjectPool<JsonParserAndMapper> {
 
-    public JsonParserFixedPool(int poolSize, int poolTimeout, LinkedBlockingQueue<JsonParserAndMapper> pool) {
-        super(poolSize, poolTimeout, pool);
+    public JsonParserFixedPool(int poolSize, int poolTimeout) {
+        super(poolSize, poolTimeout);
     }
 
     public JsonParserFixedPool(int poolSize) {

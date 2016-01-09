@@ -8,8 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -30,7 +28,7 @@ public class FixedPoolTest {
     public void ShouldInitialiseWith20Objects(){
 
         // arrange and act
-        jsonParserFixedPool = new JsonParserFixedPool(20, 3000, new LinkedBlockingQueue<JsonParserAndMapper>());
+        jsonParserFixedPool = new JsonParserFixedPool(20, 3000);
 
         // assert
         assertThat(jsonParserFixedPool.getCurrentPoolSize()).isEqualTo(20);

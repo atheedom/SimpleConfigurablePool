@@ -22,26 +22,23 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
     }
 
     private PoolState currentStatus;
-    private BlockingQueue<T> pool;
+    private BlockingQueue<T> pool= new LinkedBlockingQueue<>();
     private int pollTimeout;
     private int poolSize;
 
     protected AbstractObjectPool() {
         this.poolSize = 100;
-        pool = new LinkedBlockingQueue<>();
         initialize();
     }
 
     protected AbstractObjectPool(int poolSize) {
         this.poolSize = poolSize;
-        pool = new LinkedBlockingQueue<>();
         initialize();
     }
 
-    protected AbstractObjectPool(int poolSize, int pollTimeout, BlockingQueue<T> pool) {
+    protected AbstractObjectPool(int poolSize, int pollTimeout) {
         this.pollTimeout = pollTimeout;
         this.poolSize = poolSize;
-        this.pool = pool;
         initialize();
     }
 
