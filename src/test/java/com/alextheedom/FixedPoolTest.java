@@ -4,6 +4,7 @@ import com.alextheedom.application.JsonParserFixedPool;
 import com.alextheedom.pool.PoolDepletionException;
 import org.boon.json.JsonParserAndMapper;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -35,7 +36,7 @@ public class FixedPoolTest {
     }
 
 
-    @Test
+    @Test @Ignore
     public void ShouldThrowDepletionException() throws Exception {
 
         // arrange
@@ -46,6 +47,20 @@ public class FixedPoolTest {
 
         // assert
         assertThatThrownBy(jsonParserFixedPool::acquire).isInstanceOf(PoolDepletionException.class);
+    }
+
+    @Test
+    public void ShouldReplenishPool() throws Exception {
+
+        // arrange
+        jsonParserFixedPool = new JsonParserFixedPool(1);
+
+        // act
+        jsonParserFixedPool.acquire(); // Retrieves the only instance from the queue
+        jsonParserFixedPool.acquire(); // Should create new instance
+
+        // assert
+        assertThat(jsonParserFixedPool.getCurrentPoolSize()).isEqualTo(0);
     }
 
     @Test

@@ -11,6 +11,7 @@ package com.alextheedom.pool;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * An abstract class to be implemented by an object pool
@@ -24,19 +25,23 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
     private PoolState currentStatus;
     private BlockingQueue<T> pool= new LinkedBlockingQueue<>();
     private int pollTimeout;
-    private int poolSize;
+    private final int poolSize;
+    private final Supplier<T> supplier;
 
-    protected AbstractObjectPool() {
+    protected AbstractObjectPool(Supplier<T> supplier) {
+        this.supplier = supplier;
         this.poolSize = 100;
         initialize();
     }
 
-    protected AbstractObjectPool(int poolSize) {
+    protected AbstractObjectPool(Supplier<T> supplier, int poolSize) {
+        this.supplier = supplier;
         this.poolSize = poolSize;
         initialize();
     }
 
-    protected AbstractObjectPool(int poolSize, int pollTimeout) {
+    protected AbstractObjectPool(Supplier<T> supplier, int poolSize, int pollTimeout) {
+        this.supplier = supplier;
         this.pollTimeout = pollTimeout;
         this.poolSize = poolSize;
         initialize();
@@ -52,7 +57,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
             throw new IllegalArgumentException("Pool Size must be at least 1");
         }
         while (pool.size() < poolSize) {
-            pool.add(createObject());
+            pool.add(supplier.get());
         }
         updatePoolStatus(PoolState.STARTED);
     }
@@ -72,7 +77,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      *
      * @return number of objects in the pool
      */
-    public int getCurrentPoolSize() {
+    public final int getCurrentPoolSize() {
         return pool.size();
     }
 
@@ -81,7 +86,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      *
      * @return true if null otherwise false
      */
-    public boolean isPoolNull() {
+    public final boolean isPoolNull() {
         return pool == null;
     }
 
@@ -91,7 +96,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      *
      * @return the current pool status
      */
-    public PoolState poolState() {
+    public final PoolState poolState() {
         return this.currentStatus;
     }
 
@@ -112,12 +117,12 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      * @throws PoolDepletionException thrown if the pool has been depleted
      * @throws InterruptedException
      */
-    public T acquire() throws Exception {
+    public final T acquire() throws Exception {
         checkPoolStatus();
         T t = pool.poll(pollTimeout, TimeUnit.MILLISECONDS);
 
         if (t == null) {
-            throw new PoolDepletionException("The pool is empty and was not replenished within timeout limits.");
+            return handleDepletion(supplier);
         }
 
         return t;
@@ -132,7 +137,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      *
      * @param object object to be returned
      */
-    public void surrender(T object) throws Exception {
+    public final void surrender(T object) throws Exception {
         checkPoolStatus();
         if (object == null) {
             return;
@@ -142,23 +147,30 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
 
 
     /**
-     * Creates a new object.
-     *
-     * @return T new object
-     */
-    protected abstract T createObject();
-
-
-    /**
      * Adds object to the pool.
      *
      * @return true if added successfully otherwise false
      */
-    public boolean add() throws Exception {
+    public final boolean add() throws Exception {
         checkPoolStatus();
-        return pool.add(createObject());
+        return pool.add(supplier.get());
     }
 
+    /**
+     * What to do if there's nothing to return within the expected time. options
+     * are to create an instance manually, or alternatively throw an exception.
+     * returning null would be a bad idea, though.
+     *
+     * @param supplier
+     *            the supplier that feeds this pool - can be used to get a
+     *            guaranteed, but slow instance.
+     * @return the value for the client to use
+     * @throws PoolDepletionException
+     *             if that is how the pool instance should respond.
+     */
+    protected T handleDepletion(Supplier<T> supplier) throws PoolDepletionException{
+        throw new PoolDepletionException("The pool is empty and was not replenished within timeout limits.");
+    }
 
     /**
      * Checks that the pool is running and ready for use otherwise it throws an exception

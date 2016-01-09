@@ -1,6 +1,7 @@
 package com.alextheedom;
 
 import com.alextheedom.application.JsonParserFlexiblePool;
+import com.alextheedom.pool.PoolDepletionException;
 import org.boon.json.JsonParserAndMapper;
 import org.junit.After;
 import org.junit.Test;
@@ -8,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Created by atheedom on 31/12/2015.
@@ -62,7 +64,7 @@ public class FlexiblePoolTest {
     }
 
     @Test
-    public void ShouldReplenishPool() throws Exception {
+    public void ShouldReplenishPoolViaMonitor() throws Exception {
 
         // arrange
         jsonParserFlexiblePool = new JsonParserFlexiblePool(10);
@@ -79,6 +81,25 @@ public class FlexiblePoolTest {
         // assert
         assertThat(jsonParserFlexiblePool.getCurrentPoolSize()).isEqualTo(10);
 
+    }
+
+    /**
+     * Set the validation interval very high to ensure that it is never provoked
+     * and the pool is never replenished by the monitor.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void ShouldThrowDepletionException() throws Exception {
+
+        // arrange
+        jsonParserFlexiblePool = new JsonParserFlexiblePool(1, 1, 1, 1_000_000); // int poolSize, int minIdle, int maxIdle, int validationInterval
+
+        // act
+        jsonParserFlexiblePool.acquire();
+
+        // assert
+        assertThatThrownBy(jsonParserFlexiblePool::acquire).isInstanceOf(PoolDepletionException.class);
     }
 
     @Test

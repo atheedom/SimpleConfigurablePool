@@ -4,40 +4,36 @@ import com.alextheedom.pool.FlexibleObjectPool;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
 
+import java.util.function.Supplier;
+
 /**
  * Creates a pool of BOON JSON Parsers
  */
 public class JsonParserFlexiblePool extends FlexibleObjectPool<JsonParserAndMapper> {
 
+    private static Supplier<JsonParserAndMapper> createJSONParserAndMapper() {
+        return () -> new JsonParserFactory().useAnnotations().usePropertiesFirst().create();
+    }
+
     public JsonParserFlexiblePool() {
-        super(20);
+        super(createJSONParserAndMapper(), 20);
     }
 
     public JsonParserFlexiblePool(int poolSize) {
-        super(poolSize);
+        super(createJSONParserAndMapper(), poolSize);
     }
 
     public JsonParserFlexiblePool(int poolSize, int pollTimeout) {
-        super(poolSize, pollTimeout, 0);
+        super(createJSONParserAndMapper(), poolSize, pollTimeout, 0);
     }
 
     public JsonParserFlexiblePool(int poolSize, int minIdle, int maxIdle, int validationInterval) {
-        super( minIdle,  maxIdle,  validationInterval);
+        super(createJSONParserAndMapper(), minIdle,  maxIdle,  validationInterval);
     }
 
     public JsonParserFlexiblePool(int poolSize, int pollTimeout, FlexiblePoolConfig flexiblePoolConfig) {
-        super(flexiblePoolConfig);
+        super(createJSONParserAndMapper(), flexiblePoolConfig);
     }
 
-
-    /**
-     * Creates a BOON JSON parser object.
-     *
-     * @return a new BOON JSON parser object
-     */
-    @Override
-    protected JsonParserAndMapper createObject() {
-        return new JsonParserFactory().useAnnotations().usePropertiesFirst().create();
-    }
 
 }

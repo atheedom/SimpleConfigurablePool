@@ -3,6 +3,7 @@ package com.alextheedom.pool;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * Created by atheedom on 31/12/2015.
@@ -11,20 +12,21 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
 
     private ScheduledExecutorService executorService;
 
-    public FlexibleObjectPool(int poolSize) {
-        super(poolSize);
+    public FlexibleObjectPool(Supplier<T> supplier, int poolSize) {
+        super(supplier,poolSize);
         provokePoolMonitor(poolSize, 20, 3000);
     }
 
-    public FlexibleObjectPool(int minIdle, int maxIdle, int validationInterval) {
-        super(minIdle);
+    public FlexibleObjectPool(Supplier<T> supplier,int minIdle, int maxIdle, int validationInterval) {
+        super(supplier,minIdle);
         provokePoolMonitor(minIdle, maxIdle, validationInterval);
     }
 
-    public FlexibleObjectPool(FlexiblePoolConfig config) {
-        super(config.minIdle);
+    public FlexibleObjectPool(Supplier<T> supplier,FlexiblePoolConfig config) {
+        super(supplier,config.minIdle);
         provokePoolMonitor(config.minIdle, config.maxIdle, config.validationInterval);
     }
+
 
     /**
      * Checks pool conditions in a separate thread.
@@ -42,7 +44,7 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
      *                           When the number of objects is greater than maxIdle, excess instances will be removed.
      */
     protected void provokePoolMonitor(final int minIdle, final int maxIdle, int validationInterval) {
-        if (minIdle < 1 || minIdle >= maxIdle) {
+        if (minIdle < 1 || minIdle > maxIdle) {
             throw new IllegalArgumentException("minIdle must be at least 1, and at least equal to maxIdle");
         }
         executorService = Executors.newSingleThreadScheduledExecutor();
