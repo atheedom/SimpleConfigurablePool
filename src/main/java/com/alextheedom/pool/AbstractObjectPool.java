@@ -22,7 +22,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
     }
 
     private PoolState currentStatus;
-    private BlockingQueue<T> pool= new LinkedBlockingQueue<>();
+    private BlockingQueue<T> pool = new LinkedBlockingQueue<>();
     private int pollTimeout;
     private int poolSize;
 
@@ -173,8 +173,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      * Destroys an object.
      */
     public void destroy() {
-        T object = pool.poll();
-        object = null;
+        pool.poll();
     }
 
 
