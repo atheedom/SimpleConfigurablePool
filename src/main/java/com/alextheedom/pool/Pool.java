@@ -5,7 +5,7 @@ package com.alextheedom.pool;
  */
 public interface Pool<T> {
 
-    T borrow() throws Exception;
-    void returnObject(T item) throws Exception;
+    T acquire() throws Exception;
+    void surrender(T item) throws Exception;
 
 }

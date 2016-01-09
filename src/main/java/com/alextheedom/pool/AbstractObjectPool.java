@@ -15,25 +15,30 @@ import java.util.concurrent.TimeUnit;
 /**
  * An abstract class to be implemented by an object pool
  */
-public abstract class AbstractObjectPool<T> implements Pool<T>{
+public abstract class AbstractObjectPool<T> implements Pool<T> {
 
     public enum PoolState {
         STARTING, STARTED, STOPPING, STOPPED
     }
 
     private PoolState currentStatus;
-
-    private BlockingQueue<T> pool = new LinkedBlockingQueue<>();
+    private BlockingQueue<T> pool;
     private int pollTimeout;
     private int poolSize;
 
-
-    public AbstractObjectPool(int poolSize) {
-        this.poolSize = poolSize;
+    protected AbstractObjectPool() {
+        this.poolSize = 100;
+        pool = new LinkedBlockingQueue<>();
         initialize();
     }
 
-    public AbstractObjectPool(int poolSize, int pollTimeout, BlockingQueue<T> pool) {
+    protected AbstractObjectPool(int poolSize) {
+        this.poolSize = poolSize;
+        pool = new LinkedBlockingQueue<>();
+        initialize();
+    }
+
+    protected AbstractObjectPool(int poolSize, int pollTimeout, BlockingQueue<T> pool) {
         this.pollTimeout = pollTimeout;
         this.poolSize = poolSize;
         this.pool = pool;
@@ -107,7 +112,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T>{
      * @throws PoolDepletionException thrown if the pool has been depleted
      * @throws InterruptedException
      */
-    public T borrow() throws Exception {
+    public T acquire() throws Exception {
         checkPoolStatus();
         T t = pool.poll(pollTimeout, TimeUnit.MILLISECONDS);
 
@@ -116,14 +121,6 @@ public abstract class AbstractObjectPool<T> implements Pool<T>{
         }
 
         return t;
-    }
-
-    /**
-     * Checks that the pool is running and ready for use otherwise it throws an exception
-     * @throws Exception thrown if pool not ready or shutting down
-     */
-    private void checkPoolStatus() throws Exception {
-        if (poolState() != PoolState.STARTED) throw new Exception("Pool not ready or stopped");
     }
 
 
@@ -135,7 +132,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T>{
      *
      * @param object object to be returned
      */
-    public void returnObject(T object) throws Exception {
+    public void surrender(T object) throws Exception {
         checkPoolStatus();
         if (object == null) {
             return;
@@ -153,15 +150,6 @@ public abstract class AbstractObjectPool<T> implements Pool<T>{
 
 
     /**
-     * Destroys an object.
-     */
-    public void destroy() {
-        T object = pool.poll();
-        object = null;
-    }
-
-
-    /**
      * Adds object to the pool.
      *
      * @return true if added successfully otherwise false
@@ -169,6 +157,24 @@ public abstract class AbstractObjectPool<T> implements Pool<T>{
     public boolean add() throws Exception {
         checkPoolStatus();
         return pool.add(createObject());
+    }
+
+
+    /**
+     * Checks that the pool is running and ready for use otherwise it throws an exception
+     *
+     * @throws Exception thrown if pool not ready or shutting down
+     */
+    private void checkPoolStatus() throws Exception {
+        if (poolState() != PoolState.STARTED) throw new Exception("Pool not ready or stopped");
+    }
+
+    /**
+     * Destroys an object.
+     */
+    public void destroy() {
+        T object = pool.poll();
+        object = null;
     }
 
 

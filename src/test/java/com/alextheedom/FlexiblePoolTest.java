@@ -1,6 +1,6 @@
 package com.alextheedom;
 
-import com.alextheedom.pool.JsonParserFlexiblePool;
+import com.alextheedom.application.JsonParserFlexiblePool;
 import org.boon.json.JsonParserAndMapper;
 import org.junit.After;
 import org.junit.Test;
@@ -40,8 +40,8 @@ public class FlexiblePoolTest {
         jsonParserFlexiblePool = new JsonParserFlexiblePool(15);
 
         // act
-        JsonParserAndMapper jsonParserAndMapper = jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.returnObject(jsonParserAndMapper);
+        JsonParserAndMapper jsonParserAndMapper = jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.surrender(jsonParserAndMapper);
 
         // assert
         assertThat(jsonParserFlexiblePool.getCurrentPoolSize()).isEqualTo(15);
@@ -68,11 +68,11 @@ public class FlexiblePoolTest {
         jsonParserFlexiblePool = new JsonParserFlexiblePool(10);
 
         // act
-        jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
 
         Thread.sleep(4000);
 
@@ -88,11 +88,11 @@ public class FlexiblePoolTest {
         jsonParserFlexiblePool = new JsonParserFlexiblePool(10, 10, 15, 2000);
 
         // act
-        jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.borrow();
-        jsonParserFlexiblePool.borrow();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
 
         Thread.sleep(4000);
 

@@ -1,6 +1,6 @@
 package com.alextheedom;
 
-import com.alextheedom.pool.JsonParserFixedPool;
+import com.alextheedom.application.JsonParserFixedPool;
 import com.alextheedom.pool.PoolDepletionException;
 import org.boon.json.JsonParserAndMapper;
 import org.junit.After;
@@ -44,10 +44,10 @@ public class FixedPoolTest {
         jsonParserFixedPool = new JsonParserFixedPool(1);
 
         // act
-        jsonParserFixedPool.borrow();
+        jsonParserFixedPool.acquire();
 
         // assert
-        assertThatThrownBy(jsonParserFixedPool::borrow).isInstanceOf(PoolDepletionException.class);
+        assertThatThrownBy(jsonParserFixedPool::acquire).isInstanceOf(PoolDepletionException.class);
     }
 
     @Test
@@ -57,8 +57,8 @@ public class FixedPoolTest {
         jsonParserFixedPool = new JsonParserFixedPool(10);
 
         // act
-        JsonParserAndMapper jsonParserAndMapper = jsonParserFixedPool.borrow();
-        jsonParserFixedPool.returnObject(jsonParserAndMapper);
+        JsonParserAndMapper jsonParserAndMapper = jsonParserFixedPool.acquire();
+        jsonParserFixedPool.surrender(jsonParserAndMapper);
 
         // assert
         assertThat(jsonParserFixedPool.getCurrentPoolSize()).isEqualTo(10);

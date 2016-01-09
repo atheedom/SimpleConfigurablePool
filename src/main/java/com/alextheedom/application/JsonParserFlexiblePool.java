@@ -1,5 +1,6 @@
-package com.alextheedom.pool;
+package com.alextheedom.application;
 
+import com.alextheedom.pool.FlexibleObjectPool;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
 

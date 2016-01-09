@@ -11,17 +11,17 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
 
     private ScheduledExecutorService executorService;
 
-    protected FlexibleObjectPool(int poolSize) {
+    public FlexibleObjectPool(int poolSize) {
         super(poolSize);
         provokePoolMonitor(poolSize, 20, 3000);
     }
 
-    protected FlexibleObjectPool(int minIdle, int maxIdle, int validationInterval) {
+    public FlexibleObjectPool(int minIdle, int maxIdle, int validationInterval) {
         super(minIdle);
         provokePoolMonitor(minIdle, maxIdle, validationInterval);
     }
 
-    protected FlexibleObjectPool(FlexiblePoolConfig config) {
+    public FlexibleObjectPool(FlexiblePoolConfig config) {
         super(config.minIdle);
         provokePoolMonitor(config.minIdle, config.maxIdle, config.validationInterval);
     }

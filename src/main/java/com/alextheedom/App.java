@@ -1,6 +1,6 @@
 package com.alextheedom;
 
-import com.alextheedom.pool.JsonParserFixedPool;
+import com.alextheedom.application.JsonParserFixedPool;
 
 /**
  *
@@ -11,7 +11,7 @@ public class App {
 
         JsonParserFixedPool jsonParserFixedPool = new JsonParserFixedPool(20);
 
-        jsonParserFixedPool.borrow();
+        jsonParserFixedPool.acquire();
 
 
 
