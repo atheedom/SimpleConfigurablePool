@@ -12,18 +12,38 @@ public abstract class FlexibleObjectPool<T> extends AbstractObjectPool<T> {
 
     private ScheduledExecutorService executorService;
 
+    private float poolSizeFactor = 0.8f;
+
+    /**
+     * Construct a flexible pool with default configuration values.
+     *
+     * @param supplier the supplier that creates a new instance of the object
+     * @param poolSize the initial size of the pool
+     */
     public FlexibleObjectPool(Supplier<T> supplier, int poolSize) {
-        super(supplier,poolSize);
-        provokePoolMonitor(poolSize, 20, 3000);
+        super(supplier, poolSize);
+        int minIdle = (int) (poolSize * poolSizeFactor);
+        int maxIdle = (int) (poolSize * (1 + (1 - poolSizeFactor)));
+        provokePoolMonitor(minIdle, maxIdle, 3000);
     }
 
-    public FlexibleObjectPool(Supplier<T> supplier,int minIdle, int maxIdle, int validationInterval) {
-        super(supplier,minIdle);
+    /**
+     * Construct a flexible pool.
+     * <p/>
+     * Set starting pool size equal to the average of the minIdle and maxIdle.
+     *
+     * @param supplier           the supplier that creates a new instance of the object
+     * @param minIdle            the minimum pool size that the monitor should attempt to maintain
+     * @param maxIdle            the maximum pool size that the monitor should attempt to maintain
+     * @param validationInterval the interval at which to fire the monitor
+     */
+    public FlexibleObjectPool(Supplier<T> supplier, int minIdle, int maxIdle, int validationInterval) {
+        super(supplier, (maxIdle + minIdle) / 2);
         provokePoolMonitor(minIdle, maxIdle, validationInterval);
     }
 
-    public FlexibleObjectPool(Supplier<T> supplier,FlexiblePoolConfig config) {
-        super(supplier,config.minIdle);
+    public FlexibleObjectPool(Supplier<T> supplier, FlexiblePoolConfig config) {
+        super(supplier, (config.maxIdle + config.minIdle) / 2);
         provokePoolMonitor(config.minIdle, config.maxIdle, config.validationInterval);
     }
 

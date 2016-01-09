@@ -63,11 +63,16 @@ public class FlexiblePoolTest {
         assertThat(jsonParserFlexiblePool.isPoolNull()).isTrue();
     }
 
+    /**
+     * Should restore the pool size to minIdle.
+     *
+     * @throws Exception
+     */
     @Test
     public void ShouldReplenishPoolViaMonitor() throws Exception {
 
         // arrange
-        jsonParserFlexiblePool = new JsonParserFlexiblePool(10);
+        jsonParserFlexiblePool = new JsonParserFlexiblePool(10, 20, 100); // poolSize = (20 + 10) / 2 = 15
 
         // act
         jsonParserFlexiblePool.acquire();
@@ -76,11 +81,16 @@ public class FlexiblePoolTest {
         jsonParserFlexiblePool.acquire();
         jsonParserFlexiblePool.acquire();
 
-        Thread.sleep(4000);
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+
+        Thread.sleep(200);
 
         // assert
         assertThat(jsonParserFlexiblePool.getCurrentPoolSize()).isEqualTo(10);
-
     }
 
     /**
@@ -93,7 +103,7 @@ public class FlexiblePoolTest {
     public void ShouldThrowDepletionException() throws Exception {
 
         // arrange
-        jsonParserFlexiblePool = new JsonParserFlexiblePool(1, 1, 1, 1_000_000); // int poolSize, int minIdle, int maxIdle, int validationInterval
+        jsonParserFlexiblePool = new JsonParserFlexiblePool(1, 1, 1_000_000); // int poolSize, int minIdle, int maxIdle, int validationInterval
 
         // act
         jsonParserFlexiblePool.acquire();
@@ -106,7 +116,7 @@ public class FlexiblePoolTest {
     public void ShouldCreateWithConfigsPool() throws Exception {
 
         // arrange
-        jsonParserFlexiblePool = new JsonParserFlexiblePool(10, 10, 15, 2000);
+        jsonParserFlexiblePool = new JsonParserFlexiblePool(10, 20, 100); // poolSize = (20 + 10) / 2 = 15
 
         // act
         jsonParserFlexiblePool.acquire();
@@ -115,11 +125,16 @@ public class FlexiblePoolTest {
         jsonParserFlexiblePool.acquire();
         jsonParserFlexiblePool.acquire();
 
-        Thread.sleep(4000);
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+        jsonParserFlexiblePool.acquire();
+
+        Thread.sleep(200);
 
         // assert
         assertThat(jsonParserFlexiblePool.getCurrentPoolSize()).isEqualTo(10);
-
     }
 
 }

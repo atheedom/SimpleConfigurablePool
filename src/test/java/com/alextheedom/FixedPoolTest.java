@@ -1,16 +1,13 @@
 package com.alextheedom;
 
 import com.alextheedom.application.JsonParserFixedPool;
-import com.alextheedom.pool.PoolDepletionException;
 import org.boon.json.JsonParserAndMapper;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Created by atheedom on 31/12/2015.
@@ -34,20 +31,7 @@ public class FixedPoolTest {
         // assert
         assertThat(jsonParserFixedPool.getCurrentPoolSize()).isEqualTo(20);
     }
-
-
-    @Test @Ignore
-    public void ShouldThrowDepletionException() throws Exception {
-
-        // arrange
-        jsonParserFixedPool = new JsonParserFixedPool(1);
-
-        // act
-        jsonParserFixedPool.acquire();
-
-        // assert
-        assertThatThrownBy(jsonParserFixedPool::acquire).isInstanceOf(PoolDepletionException.class);
-    }
+    
 
     @Test
     public void ShouldReplenishPool() throws Exception {
