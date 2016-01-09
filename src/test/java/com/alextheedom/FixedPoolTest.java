@@ -31,7 +31,7 @@ public class FixedPoolTest {
         // assert
         assertThat(jsonParserFixedPool.getCurrentPoolSize()).isEqualTo(20);
     }
-    
+
 
     @Test
     public void ShouldReplenishPool() throws Exception {

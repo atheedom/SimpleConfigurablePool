@@ -185,8 +185,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      * Destroys an object.
      */
     public void destroy() {
-        T object = pool.poll();
-        object = null;
+       pool.poll();
     }
 
 
