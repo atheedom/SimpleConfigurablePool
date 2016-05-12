@@ -43,7 +43,7 @@ public class JsonParserFlexiblePoolTest {
         JsonParserFacade JSON_PARSER = JsonPoolFactory.getParserFacadeInstance(15);
 
         // assert
-        assertThat(JSON_PARSER.getJsonParserPool().getCurrentPoolSize()).isEqualTo(15);
+        assertThat(JSON_PARSER.getJsonParserFixedPool().getCurrentPoolSize()).isEqualTo(15);
     }
 
     @Test

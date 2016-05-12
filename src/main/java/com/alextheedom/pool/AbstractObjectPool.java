@@ -96,7 +96,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      *
      * @return the current pool status
      */
-    public final PoolState poolState() {
+    protected final PoolState poolState() {
         return this.currentStatus;
     }
 

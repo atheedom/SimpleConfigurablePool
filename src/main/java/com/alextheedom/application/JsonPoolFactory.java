@@ -40,9 +40,9 @@ public class JsonPoolFactory {
      */
     public static JsonParserFacade getParserFacadeInstance(int newPoolSize) throws Exception {
 
-        if (jsonParserFacade == null || jsonParserFacade.getJsonParserPool().getCurrentPoolSize() != newPoolSize) {
+        if (jsonParserFacade == null || jsonParserFacade.getJsonParserFixedPool().getCurrentPoolSize() != newPoolSize) {
             synchronized (JsonPoolFactory.class) {
-                if (jsonParserFacade == null || jsonParserFacade.getJsonParserPool().getCurrentPoolSize() != newPoolSize) {
+                if (jsonParserFacade == null || jsonParserFacade.getJsonParserFixedPool().getCurrentPoolSize() != newPoolSize) {
                     if (jsonParserFacade != null) {
                         jsonParserFacade.changePoolSize(newPoolSize);
                     } else {

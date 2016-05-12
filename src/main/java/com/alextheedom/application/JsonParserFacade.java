@@ -13,14 +13,14 @@ import java.util.List;
  */
 public class JsonParserFacade {
 
-    private JsonParserFixedPool jsonParserPool; // was JsonParserPool
+    private JsonParserFixedPool jsonParserFixedPool;
 
     public JsonParserFacade() {
-        jsonParserPool = new JsonParserFixedPool(100);
+        jsonParserFixedPool = new JsonParserFixedPool(100);
     }
 
     public JsonParserFacade(int poolSize) {
-        jsonParserPool = new JsonParserFixedPool(poolSize);
+        jsonParserFixedPool = new JsonParserFixedPool(poolSize);
     }
 
     /**
@@ -36,7 +36,7 @@ public class JsonParserFacade {
         JsonParserAndMapper jsonParserAndMapper = null;
         T obj = null;
         try {
-            jsonParserAndMapper = jsonParserPool.acquire();
+            jsonParserAndMapper = jsonParserFixedPool.acquire();
             obj = jsonParserAndMapper.parse(type, value);
         } catch (PoolDepletionException e) {
 
@@ -44,7 +44,7 @@ public class JsonParserFacade {
             throw e;
         } finally {
             if (jsonParserAndMapper != null) {
-                jsonParserPool.surrender(jsonParserAndMapper);
+                jsonParserFixedPool.surrender(jsonParserAndMapper);
             }
         }
 
@@ -65,7 +65,7 @@ public class JsonParserFacade {
         JsonParserAndMapper jsonParserAndMapper = null;
         List<T> obj = null;
         try {
-            jsonParserAndMapper = jsonParserPool.acquire();
+            jsonParserAndMapper = jsonParserFixedPool.acquire();
             obj = jsonParserAndMapper.parseList(type, value);
         } catch (PoolDepletionException e) {
 
@@ -74,7 +74,7 @@ public class JsonParserFacade {
             throw e;
         } finally {
             if (jsonParserAndMapper != null) {
-                jsonParserPool.surrender(jsonParserAndMapper);
+                jsonParserFixedPool.surrender(jsonParserAndMapper);
             }
         }
 
@@ -87,8 +87,8 @@ public class JsonParserFacade {
      *
      * @return
      */
-    public JsonParserFixedPool getJsonParserPool() {
-        return jsonParserPool;
+    public JsonParserFixedPool getJsonParserFixedPool() {
+        return jsonParserFixedPool;
     }
 
 
@@ -98,8 +98,8 @@ public class JsonParserFacade {
      * NOTE: This method will not shutdown the executor.
      */
     public void destroyPool() {
-        jsonParserPool.destroyPool();
-        jsonParserPool = null;
+        jsonParserFixedPool.destroyPool();
+        jsonParserFixedPool = null;
     }
 
 
@@ -113,20 +113,20 @@ public class JsonParserFacade {
      *
      * @param newPoolSize new pool size
      */
-    public void changePoolSize(int newPoolSize) throws Exception {
+    protected void changePoolSize(int newPoolSize) throws Exception {
 
-        if (jsonParserPool != null) {
-            int size = jsonParserPool.getCurrentPoolSize();
+        if (jsonParserFixedPool != null) {
+            int size = jsonParserFixedPool.getCurrentPoolSize();
             if (size < newPoolSize) {
                 int sizeToBeAdded = newPoolSize - size;
                 for (int i = 0; i < sizeToBeAdded; i++) {
-                    jsonParserPool.add();
+                    jsonParserFixedPool.add();
                 }
             } else if (size > newPoolSize) {
                 int sizeToBeRemoved = size - newPoolSize;
 
                 for (int i = 0; i < sizeToBeRemoved; i++) {
-                    jsonParserPool.destroy();
+                    jsonParserFixedPool.destroy();
                 }
             }
         }

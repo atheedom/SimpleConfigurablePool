@@ -15,7 +15,7 @@ public class JsonParserFlexiblePool extends FlexibleObjectPool<JsonParserAndMapp
         return () -> new JsonParserFactory().useAnnotations().usePropertiesFirst().create();
     }
 
-    public JsonParserFlexiblePool() {
+    protected JsonParserFlexiblePool() {
         super(createJSONParserAndMapper(), 20);
     }
 

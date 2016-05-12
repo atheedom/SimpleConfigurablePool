@@ -24,7 +24,7 @@ public class JsonParserFixedPool extends AbstractObjectPool<JsonParserAndMapper>
         super(createJSONParserAndMapper(), poolSize);
     }
 
-    protected JsonParserAndMapper handleDepletion(Supplier<JsonParserAndMapper> supplier) throws PoolDepletionException {
+    public JsonParserAndMapper handleDepletion(Supplier<JsonParserAndMapper> supplier) throws PoolDepletionException {
         return supplier.get();
     }
 
