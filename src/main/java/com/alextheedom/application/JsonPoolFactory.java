@@ -29,7 +29,7 @@ public class JsonPoolFactory {
 
     /**
      * Returns an instance of the json parser facade with pool of the given size.
-     * If the pool size is different from the pool's current size the pool is distroyed
+     * If the pool size is different from the pool's current size the pool is destroyed
      * and recreated.
      * <p>
      * The first call constructs the facade and subsequent calls returns
@@ -40,10 +40,18 @@ public class JsonPoolFactory {
      */
     public static JsonParserFacade getParserFacadeInstance(int newPoolSize) throws Exception {
 
-        if (jsonParserFacade == null || jsonParserFacade.getJsonParserFixedPool().getCurrentPoolSize() != newPoolSize) {
+        if (jsonParserFacade == null
+                || jsonParserFacade.getJsonParserFixedPool() == null
+                    || jsonParserFacade.getJsonParserFixedPool().isPoolNull()
+                        || jsonParserFacade.getJsonParserFixedPool().getCurrentPoolSize() != newPoolSize) {
+
             synchronized (JsonPoolFactory.class) {
-                if (jsonParserFacade == null || jsonParserFacade.getJsonParserFixedPool().getCurrentPoolSize() != newPoolSize) {
-                    if (jsonParserFacade != null) {
+                if (jsonParserFacade == null
+                        || jsonParserFacade.getJsonParserFixedPool() == null
+                            || jsonParserFacade.getJsonParserFixedPool().isPoolNull()
+                                || jsonParserFacade.getJsonParserFixedPool().getCurrentPoolSize() != newPoolSize) {
+
+                    if (jsonParserFacade != null && jsonParserFacade.getJsonParserFixedPool() != null) {
                         jsonParserFacade.changePoolSize(newPoolSize);
                     } else {
                         jsonParserFacade = new JsonParserFacade(newPoolSize);

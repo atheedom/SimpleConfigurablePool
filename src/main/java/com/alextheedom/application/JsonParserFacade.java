@@ -98,8 +98,10 @@ public class JsonParserFacade {
      * NOTE: This method will not shutdown the executor.
      */
     public void destroyPool() {
-        jsonParserFixedPool.destroyPool();
-        jsonParserFixedPool = null;
+        if(jsonParserFixedPool != null){
+            jsonParserFixedPool.destroyPool();
+            jsonParserFixedPool = null;
+        }
     }
 
 
