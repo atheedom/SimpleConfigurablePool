@@ -32,7 +32,7 @@ public class JsonParserFlexiblePoolTest {
     public void setup() {
 
         testEntityJson = "{\"name\":\"John Smith\",\"age\":30}";
-        testEntityObject = new TestEntity("John Smith",30);
+        testEntityObject = new TestEntity("John Smith", 30);
 
     }
 
@@ -44,11 +44,10 @@ public class JsonParserFlexiblePoolTest {
 
         // assert
         assertThat(JSON_PARSER.getJsonParserPool().getCurrentPoolSize()).isEqualTo(15);
-
     }
 
     @Test
-    public void ShouldReturnObjectToPool() throws Exception {
+    public void ShouldParseJSONToObject() throws Exception {
 
         // arrange
         JsonParserFacade JSON_PARSER = JsonPoolFactory.getParserFacadeInstance(15);
@@ -59,8 +58,6 @@ public class JsonParserFlexiblePoolTest {
         // assert
         assertThat(testEntity).isEqualTo(testEntityObject);
     }
-
-
 
 
     public class TestEntity {
