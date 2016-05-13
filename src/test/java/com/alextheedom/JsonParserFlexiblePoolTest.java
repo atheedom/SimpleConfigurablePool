@@ -50,7 +50,7 @@ public class JsonParserFlexiblePoolTest {
     public void ShouldParseJSONToObject() throws Exception {
 
         // arrange
-        JsonParserFacade JSON_PARSER = JsonPoolFactory.getParserFacadeInstance(15);
+        JsonParserFacade JSON_PARSER = JsonPoolFactory.getParserFacadeInstance(1);
 
         // act
         TestEntity testEntity = JSON_PARSER.parse(TestEntity.class, testEntityJson);

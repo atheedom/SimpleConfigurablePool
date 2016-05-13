@@ -1,6 +1,7 @@
 package com.alextheedom.application;
 
 
+import com.alextheedom.pool.AbstractObjectPool;
 import com.alextheedom.pool.PoolDepletionException;
 import org.boon.json.JsonParserAndMapper;
 
@@ -11,9 +12,9 @@ import java.util.List;
  * <p/>
  * Created by atheedom on 27/11/2014.
  */
-public class JsonParserFacade {
+public class JsonParserFacade extends AbstractFacade<JsonParserAndMapper> {
 
-    private JsonParserFixedPool jsonParserFixedPool;
+    private AbstractObjectPool<JsonParserAndMapper> jsonParserFixedPool;
 
     public JsonParserFacade() {
         jsonParserFixedPool = new JsonParserFixedPool(100);
@@ -87,7 +88,7 @@ public class JsonParserFacade {
      *
      * @return
      */
-    public JsonParserFixedPool getJsonParserFixedPool() {
+    public AbstractObjectPool<JsonParserAndMapper> getJsonParserFixedPool() {
         return jsonParserFixedPool;
     }
 
@@ -98,7 +99,7 @@ public class JsonParserFacade {
      * NOTE: This method will not shutdown the executor.
      */
     public void destroyPool() {
-        if(jsonParserFixedPool != null){
+        if (jsonParserFixedPool != null) {
             jsonParserFixedPool.destroyPool();
             jsonParserFixedPool = null;
         }
@@ -106,31 +107,13 @@ public class JsonParserFacade {
 
 
     /**
-     * Change the size of a pool.
-     * <p/>
-     * Note that if the pool size is to be reduced and this method is called at run time it is possible that the final
-     * pool size achieved is more than the poolSize required. This is because some objects
-     * in the pool have been polled and are currently in use. If the remaining objects in the pool number less
-     * than the reduction required only those in the pool will be removed.
+     * Changes the size of the pool to the given size
      *
-     * @param newPoolSize new pool size
+     * @param newPoolSize the size of the new pool
+     * @throws Exception
      */
-    protected void changePoolSize(int newPoolSize) throws Exception {
-
-        if (jsonParserFixedPool != null) {
-            int size = jsonParserFixedPool.getCurrentPoolSize();
-            if (size < newPoolSize) {
-                int sizeToBeAdded = newPoolSize - size;
-                for (int i = 0; i < sizeToBeAdded; i++) {
-                    jsonParserFixedPool.add();
-                }
-            } else if (size > newPoolSize) {
-                int sizeToBeRemoved = size - newPoolSize;
-
-                for (int i = 0; i < sizeToBeRemoved; i++) {
-                    jsonParserFixedPool.destroy();
-                }
-            }
-        }
+    public void changePoolSize(int newPoolSize) throws Exception {
+        super.changePoolSize(newPoolSize, jsonParserFixedPool);
     }
+
 }
