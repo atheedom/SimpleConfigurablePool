@@ -54,7 +54,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
     private void initialize() {
         updatePoolStatus(PoolState.STARTING);
         if (poolSize < 1) {
-            throw new IllegalArgumentException("Pool Size must be at least 1");
+            throw new IllegalArgumentException("Pool size must be at least 1");
         }
         while (pool.size() < poolSize) {
             pool.add(supplier.get());
@@ -115,9 +115,10 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      *
      * @return T borrowed object
      * @throws PoolDepletionException thrown if the pool has been depleted
+     * @throws PoolStatusException    thrown if the pool status is not STARTED
      * @throws InterruptedException
      */
-    public final T acquire() throws Exception {
+    public final T acquire() throws InterruptedException, PoolStatusException, PoolDepletionException {
         checkPoolStatus();
         T t = pool.poll(pollTimeout, TimeUnit.MILLISECONDS);
 
@@ -136,8 +137,11 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      * object to initial values.
      *
      * @param object object to be returned
+     * @throws PoolDepletionException thrown if the pool has been depleted
+     * @throws PoolStatusException    thrown if the pool status is not STARTED
+     * @throws InterruptedException
      */
-    public final void surrender(T object) throws Exception {
+    public final void surrender(T object) throws InterruptedException, PoolStatusException, PoolDepletionException {
         checkPoolStatus();
         if (object == null) {
             return;
@@ -150,8 +154,9 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      * Adds object to the pool.
      *
      * @return true if added successfully otherwise false
+     * @throws PoolStatusException thrown if the pool status is not STARTED
      */
-    public final boolean add() throws Exception {
+    public final boolean add() throws PoolStatusException {
         checkPoolStatus();
         return pool.add(supplier.get());
     }
@@ -167,16 +172,16 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      * @throws PoolDepletionException if that is how the pool instance should respond.
      */
     protected T handleDepletion(Supplier<T> supplier) throws PoolDepletionException {
-        throw new PoolDepletionException("The pool is empty and was not replenished within timeout limits.");
+        throw new PoolDepletionException();
     }
 
     /**
      * Checks that the pool is running and ready for use otherwise it throws an exception
      *
-     * @throws Exception thrown if pool not ready or shutting down
+     * @throws PoolStatusException thrown if pool not ready or shutting down
      */
-    private void checkPoolStatus() throws Exception {
-        if (poolState() != PoolState.STARTED) throw new Exception("Pool not ready or stopped");
+    private void checkPoolStatus() throws PoolStatusException {
+        if (poolState() != PoolState.STARTED) throw new PoolStatusException();
     }
 
     /**

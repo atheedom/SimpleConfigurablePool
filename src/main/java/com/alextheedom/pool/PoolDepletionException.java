@@ -5,7 +5,7 @@ package com.alextheedom.pool;
  */
 public class PoolDepletionException extends Exception   {
 
-    private static final String MESSAGE = "The pool has been depleted";
+    private static final String MESSAGE = "The pool is empty and was not replenished within timeout limits.";
 
     public PoolDepletionException() {
         super(MESSAGE);

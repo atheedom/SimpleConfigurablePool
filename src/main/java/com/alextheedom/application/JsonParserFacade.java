@@ -3,6 +3,7 @@ package com.alextheedom.application;
 
 import com.alextheedom.pool.AbstractObjectPool;
 import com.alextheedom.pool.PoolDepletionException;
+import com.alextheedom.pool.PoolStatusException;
 import org.boon.json.JsonParserAndMapper;
 
 import java.util.List;
@@ -32,17 +33,13 @@ public class JsonParserFacade extends AbstractFacade<JsonParserAndMapper> {
      * @param <T>   the return type
      * @return the parsed object
      */
-    public synchronized final <T> T parse(Class<T> type, String value) throws Exception {
+    public synchronized final <T> T parse(Class<T> type, String value) throws InterruptedException, PoolStatusException, PoolDepletionException {
 
         JsonParserAndMapper jsonParserAndMapper = null;
-        T obj = null;
+        T obj;
         try {
             jsonParserAndMapper = jsonParserFixedPool.acquire();
             obj = jsonParserAndMapper.parse(type, value);
-        } catch (PoolDepletionException e) {
-
-        } catch (Exception e) {
-            throw e;
         } finally {
             if (jsonParserAndMapper != null) {
                 jsonParserFixedPool.surrender(jsonParserAndMapper);
@@ -61,18 +58,13 @@ public class JsonParserFacade extends AbstractFacade<JsonParserAndMapper> {
      * @param <T>   the return type
      * @return the parsed list of objects
      */
-    public synchronized final <T> List<T> parseList(Class<T> type, String value) throws Exception {
+    public synchronized final <T> List<T> parseList(Class<T> type, String value) throws InterruptedException, PoolStatusException, PoolDepletionException {
 
         JsonParserAndMapper jsonParserAndMapper = null;
-        List<T> obj = null;
+        List<T> obj;
         try {
             jsonParserAndMapper = jsonParserFixedPool.acquire();
             obj = jsonParserAndMapper.parseList(type, value);
-        } catch (PoolDepletionException e) {
-
-        } catch (Exception e) {
-
-            throw e;
         } finally {
             if (jsonParserAndMapper != null) {
                 jsonParserFixedPool.surrender(jsonParserAndMapper);
@@ -86,7 +78,7 @@ public class JsonParserFacade extends AbstractFacade<JsonParserAndMapper> {
     /**
      * Returns the current JSON parser pool
      *
-     * @return
+     * @return the JSON parser fixed pool instance
      */
     public AbstractObjectPool<JsonParserAndMapper> getJsonParserFixedPool() {
         return jsonParserFixedPool;
@@ -110,9 +102,9 @@ public class JsonParserFacade extends AbstractFacade<JsonParserAndMapper> {
      * Changes the size of the pool to the given size
      *
      * @param newPoolSize the size of the new pool
-     * @throws Exception
+     * @throws PoolStatusException thrown if pool not ready or shutting down
      */
-    public void changePoolSize(int newPoolSize) throws Exception {
+    public void changePoolSize(int newPoolSize) throws PoolStatusException {
         super.changePoolSize(newPoolSize, jsonParserFixedPool);
     }
 

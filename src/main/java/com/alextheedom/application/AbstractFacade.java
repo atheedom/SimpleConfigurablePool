@@ -1,6 +1,7 @@
 package com.alextheedom.application;
 
 import com.alextheedom.pool.AbstractObjectPool;
+import com.alextheedom.pool.PoolStatusException;
 
 /**
  * Created by atheedom on 13/05/2016.
@@ -17,7 +18,7 @@ abstract class AbstractFacade<T> {
      *
      * @param newPoolSize new pool size
      */
-    public void changePoolSize(int newPoolSize, AbstractObjectPool<T> pool) throws Exception {
+    public void changePoolSize(int newPoolSize, AbstractObjectPool<T> pool) throws PoolStatusException {
 
         if (pool != null) {
             int size = pool.getCurrentPoolSize();
