@@ -23,7 +23,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
     }
 
     private PoolState currentStatus;
-    private BlockingQueue<T> pool= new LinkedBlockingQueue<>();
+    private BlockingQueue<T> pool = new LinkedBlockingQueue<>();
     private int pollTimeout;
     private final int poolSize;
     private final Supplier<T> supplier;
@@ -122,7 +122,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
         T t = pool.poll(pollTimeout, TimeUnit.MILLISECONDS);
 
         if (t == null) {
-            return handleDepletion(supplier);
+            handleDepletion(supplier);
         }
 
         return t;
@@ -161,14 +161,12 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      * are to create an instance manually, or alternatively throw an exception.
      * returning null would be a bad idea, though.
      *
-     * @param supplier
-     *            the supplier that feeds this pool - can be used to get a
-     *            guaranteed, but slow instance.
+     * @param supplier the supplier that feeds this pool - can be used to get a
+     *                 guaranteed, but slow instance.
      * @return the value for the client to use
-     * @throws PoolDepletionException
-     *             if that is how the pool instance should respond.
+     * @throws PoolDepletionException if that is how the pool instance should respond.
      */
-    protected T handleDepletion(Supplier<T> supplier) throws PoolDepletionException{
+    protected T handleDepletion(Supplier<T> supplier) throws PoolDepletionException {
         throw new PoolDepletionException("The pool is empty and was not replenished within timeout limits.");
     }
 
@@ -185,7 +183,7 @@ public abstract class AbstractObjectPool<T> implements Pool<T> {
      * Destroys an object.
      */
     public void destroy() {
-       pool.poll();
+        pool.poll();
     }
 
 

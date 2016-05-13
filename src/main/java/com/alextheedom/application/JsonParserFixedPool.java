@@ -1,7 +1,6 @@
 package com.alextheedom.application;
 
 import com.alextheedom.pool.AbstractObjectPool;
-import com.alextheedom.pool.PoolDepletionException;
 import org.boon.json.JsonParserAndMapper;
 import org.boon.json.JsonParserFactory;
 
@@ -22,10 +21,6 @@ public class JsonParserFixedPool extends AbstractObjectPool<JsonParserAndMapper>
 
     public JsonParserFixedPool(int poolSize) {
         super(createJSONParserAndMapper(), poolSize);
-    }
-
-    public JsonParserAndMapper handleDepletion(Supplier<JsonParserAndMapper> supplier) throws PoolDepletionException {
-        return supplier.get();
     }
 
 }
