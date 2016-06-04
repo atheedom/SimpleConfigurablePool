@@ -21,6 +21,7 @@ public class JsonParserFacade extends AbstractFacade<JsonParserAndMapper> {
         jsonParserFixedPool = new JsonParserFixedPool(100);
     }
 
+
     public JsonParserFacade(int poolSize) {
         jsonParserFixedPool = new JsonParserFixedPool(poolSize);
     }
@@ -105,7 +106,8 @@ public class JsonParserFacade extends AbstractFacade<JsonParserAndMapper> {
      * @throws PoolStatusException thrown if pool not ready or shutting down
      */
     public void changePoolSize(int newPoolSize) throws PoolStatusException {
-        super.changePoolSize(newPoolSize, jsonParserFixedPool);
+        jsonParserFixedPool.changePoolSize(newPoolSize);
     }
+
 
 }
